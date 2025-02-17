@@ -1,2 +1,3 @@
 llm-finetune/*
 requirements.txt
+.env
