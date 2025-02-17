@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig, AutoTokenizer
 import torch
 
 app = Flask(__name__)
@@ -10,7 +10,18 @@ app = Flask(__name__)
 load_dotenv()
 hf_token = os.getenv("HF_TOKEN")
 
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2",  load_in_4bit=True, device_map="auto")
+
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+
+quantization_config = BitsAndBytesConfig(
+    load_in_4bit=True  
+)
+
+
+model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2",  quantization_config=quantization_config, device_map="auto").to(device)
 tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
 
 @app.route("/ask", methods=["POST"])
