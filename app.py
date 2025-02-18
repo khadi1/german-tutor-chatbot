@@ -12,37 +12,35 @@ hf_token = os.getenv("HF_TOKEN")
 
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-
-
-quantization_config = BitsAndBytesConfig(
-    load_in_4bit=True  
-)
-
-
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2",  quantization_config=quantization_config, device_map="auto").to(device)
-tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
+model = AutoModelForCausalLM.from_pretrained("dbmdz/german-gpt2",  device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained("dbmdz/german-gpt2")
 
 @app.route("/ask", methods=["POST"])
 def ask_german_assistant():
     data = request.json
     question = data.get("question", "")
-    
-   
-    inputs = tokenizer(question, return_tensors="pt")
-    
-    # Move tensors to the same device as the model
-    input_ids = inputs["input_ids"].to(model.device)
-    
+
+    # Tokenize input and move to GPU
+    inputs = tokenizer(question, return_tensors="pt").to(model.device) 
+
     # Generate an answer
     with torch.no_grad():
-        output = model.generate(input_ids)
-    
-    # Decode the generated response
-    answer = tokenizer.decode(output[0], skip_special_tokens=True)
-    
+        output = model.generate(
+            inputs["input_ids"],
+            attention_mask=inputs["attention_mask"],
+            do_sample=True,
+            max_length=50,
+            temperature=0.7,
+            top_p=0.9,
+            eos_token_id=tokenizer.eos_token_id,
+             pad_token_id=tokenizer.eos_token_id,
+             repetition_penalty=1.2
+        )
+
+    # Decode response
+    answer = tokenizer.decode(output[0])
+
     return jsonify({"answer": answer})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
