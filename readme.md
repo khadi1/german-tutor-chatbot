@@ -3,6 +3,7 @@ We will focus on: speaking, grammar
 Keywords: DeepSeek-v3 API
 
 The project is organized as follows:
+<pre>
 app/
 │
 ├── api/
@@ -17,5 +18,6 @@ app/
 │   └── conversation_model.py
 │
 └── main.py
+</pre>
 
 
