@@ -20,4 +20,3 @@ app/
 └── main.py
 </pre>
 
-<pre> ```bash app/ │ ├── api/ │ ├── speech_to_text.py │ ├── text_to_speech.py │ ├── grammar_check.py │ └── conversation.py │ ├── models/ │ ├── speech_model.py │ ├── grammar_model.py │ └── conversation_model.py │ └── main.py ``` </pre>
